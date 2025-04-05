@@ -14,10 +14,25 @@ const userRouters = require('./routes/userRoutes');
 const app = express();
 
 // ✅ CORS Configuration (Allow Frontend)
+// ✅ Allow both local development and live frontend
+const allowedOrigins = [
+  "http://localhost:3000",          // Local dev
+  "https://sociify.netlify.app"     // Your live frontend
+];
+
 app.use(
   cors({
-    origin: "http://localhost:3000", // Change this to your frontend URL or Render client URL
-    credentials: true, // Allows cookies and credentials to be sent
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 
